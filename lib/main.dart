@@ -1,8 +1,9 @@
 import 'package:app_restaurante/models/prato.dart';
 import 'package:flutter/material.dart';
 
-import 'pages/bebidas_page.dart';
 import 'data/pratos.dart';
+import 'pages/bebidas_page.dart';
+import 'utils/formatacao_moeda.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +18,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'HouseBurguer',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const MyHomePage(title: 'House Burguer'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MyHomePage(title: 'House Burguer'),
+      },
     );
   }
 }
@@ -32,13 +36,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  Prato? _pratoSelecionado;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('R\$ ${prato.preco.toStringAsFixed(2)}'),
+                  Text(formatarReais(prato.preco)),
                   Row(
                     children: [
                       const Icon(Icons.star, color: Colors.amber, size: 18),
@@ -76,6 +74,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
+              selected: _pratoSelecionado == prato,
+              trailing: _pratoSelecionado == prato
+                  ? const Icon(Icons.check_circle, color: Colors.green)
+                  : null,
               onTap: () async {
                 final comprar = await showModalBottomSheet<bool>(
                   context: context,
@@ -97,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             'Ingredientes: ${prato.ingredientes.join(', ')}',
                           ),
                           const SizedBox(height: 12),
-                          Text('R\$ ${prato.preco.toStringAsFixed(2)}'),
+                          Text(formatarReais(prato.preco)),
                           const SizedBox(height: 20),
                           SizedBox(
                             width: double.infinity,
@@ -114,6 +116,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
 
                 if (comprar == true && context.mounted) {
+                  setState(() {
+                    _pratoSelecionado = prato;
+                  });
                   Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (_) => BebidasPage(pratoSelecionado: prato),

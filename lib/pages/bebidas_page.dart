@@ -4,6 +4,7 @@ import '../data/bebidas.dart';
 import '../models/bebida.dart';
 import '../models/prato.dart';
 import '../pages/sobremesas_pages.dart';
+import '../utils/formatacao_moeda.dart';
 
 class BebidasPage extends StatefulWidget {
   final Prato pratoSelecionado;
@@ -21,7 +22,21 @@ class _BebidasPageState extends State<BebidasPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Bebidas')),
+      appBar: AppBar(
+        title: const Text('Bebidas'),
+        actions: [
+          IconButton(
+            tooltip: 'Início',
+            icon: const Icon(Icons.home_outlined),
+            onPressed: () {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/',
+                (route) => false,
+              );
+            },
+          ),
+        ],
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -70,7 +85,7 @@ class _BebidasPageState extends State<BebidasPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text('${bebida.volumeMl} ml'),
-                        Text('R\$ ${bebida.preco.toStringAsFixed(2)}'),
+                        Text(formatarReais(bebida.preco)),
                       ],
                     ),
                     selected: selecionada,
@@ -89,6 +104,29 @@ class _BebidasPageState extends State<BebidasPage> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _bebidaSelecionada == null && !_semBebidaSelecionada
+                  ? null
+                  : () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => SobremesasPage(
+                            pratoSelecionado: widget.pratoSelecionado,
+                            bebidaSelecionada: _bebidaSelecionada,
+                          ),
+                        ),
+                      );
+                    },
+              child: const Text('Escolher sobremesa'),
+            ),
+          ),
+        ),
       ),
     );
   }

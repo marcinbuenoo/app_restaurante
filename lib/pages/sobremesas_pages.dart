@@ -4,6 +4,8 @@ import '../data/sobremesas.dart';
 import '../models/bebida.dart';
 import '../models/prato.dart';
 import '../models/sobremesa.dart';
+import '../utils/formatacao_moeda.dart';
+import 'pagamento_page.dart';
 
 class SobremesasPage extends StatefulWidget {
   final Prato pratoSelecionado;
@@ -26,9 +28,25 @@ class _SobremesasPageState extends State<SobremesasPage> {
   @override
   Widget build(BuildContext context) {
     final nomeBebida = widget.bebidaSelecionada?.nome ?? 'Sem bebida';
+    final podeContinuar =
+        _sobremesaSelecionada != null || _semSobremesaSelecionada;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Sobremesas')),
+      appBar: AppBar(
+        title: const Text('Sobremesas'),
+        actions: [
+          IconButton(
+            tooltip: 'Início',
+            icon: const Icon(Icons.home_outlined),
+            onPressed: () {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/',
+                (route) => false,
+              );
+            },
+          ),
+        ],
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -75,7 +93,7 @@ class _SobremesasPageState extends State<SobremesasPage> {
                       fit: BoxFit.cover,
                     ),
                     title: Text(sobremesa.nome),
-                    subtitle: Text('R\$ ${sobremesa.preco.toStringAsFixed(2)}'),
+                    subtitle: Text(formatarReais(sobremesa.preco)),
                     selected: selecionada,
                     trailing: selecionada
                         ? const Icon(Icons.check_circle, color: Colors.green)
@@ -92,6 +110,30 @@ class _SobremesasPageState extends State<SobremesasPage> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: !podeContinuar
+                  ? null
+                  : () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => PagamentoPage(
+                            pratoSelecionado: widget.pratoSelecionado,
+                            bebidaSelecionada: widget.bebidaSelecionada,
+                            sobremesaSelecionada: _sobremesaSelecionada,
+                          ),
+                        ),
+                      );
+                    },
+              child: const Text('Ir para pagamento'),
+            ),
+          ),
+        ),
       ),
     );
   }
