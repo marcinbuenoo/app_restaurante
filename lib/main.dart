@@ -1,6 +1,7 @@
 import 'package:app_restaurante/models/prato.dart';
 import 'package:flutter/material.dart';
 
+import 'pages/bebidas_page.dart';
 import 'data/pratos.dart';
 
 void main() {
@@ -14,9 +15,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'HouseBurguer',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'House Burguer'),
     );
   }
 }
@@ -75,14 +76,54 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
+              onTap: () async {
+                final comprar = await showModalBottomSheet<bool>(
+                  context: context,
+                  builder: (modalContext) {
+                    return Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            prato.nome,
+                            style: Theme.of(modalContext).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(prato.descricao),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Ingredientes: ${prato.ingredientes.join(', ')}',
+                          ),
+                          const SizedBox(height: 12),
+                          Text('R\$ ${prato.preco.toStringAsFixed(2)}'),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton(
+                              onPressed: () =>
+                                  Navigator.of(modalContext).pop(true),
+                              child: const Text('Comprar'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+
+                if (comprar == true && context.mounted) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => BebidasPage(pratoSelecionado: prato),
+                    ),
+                  );
+                }
+              },
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
